@@ -1,5 +1,5 @@
-indUserAgentInfo
-==================
+arrayTextAdapt
+==============
 
 A plugin for LimeSurvey to use dropdown in replace of input in array text
 
