@@ -7,7 +7,17 @@ A plugin for LimeSurvey to use dropdown in replace of input in array text
 
 ### Via GIT
 - Go to your LimeSurvey Directory (version up to 2.06 only)
-- Clone with Submodule in plugins/arrayTextAdapt directory
+- Clone with Submodule in plugins/arrayTextAdapt directory `git clone --recursive https://git.framasoft.org/SondagePro-LimeSurvey-plugin/arrayTextAdapt.git arrayTextAdapt`
+
+### Via ZIP dowload
+- Download <http://extensions.sondages.pro/IMG/auto/arrayTextAdapt.zip> or <http://extensions.sondages.pro/IMG/auto/arrayTextAdapt.tar>
+- Extract : `unzip arrayTextAdapt.zip`
+- Move the directory to  plugins/ directory inside LimeSUrvey
+
+## Documentation
+- After adding your Array texts question type : go to survey settings / Plugins
+- All array text questioin type column ar shown wher you can choose the setting to use
+- Demo survey : <http://demonstration.sondages.pro/194714?newtest=Y>
 
 ## Home page & Copyright
 - HomePage <http://extensions.sondages.pro/>
