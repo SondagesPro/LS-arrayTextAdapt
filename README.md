@@ -7,7 +7,7 @@ A plugin for LimeSurvey to use dropdown in replace of input in array text
 
 ### Via GIT
 - Go to your LimeSurvey Directory (version up to 2.06 only)
-- Clone in plugins/arrayTextAdapt directory
+- Clone with Submodule in plugins/arrayTextAdapt directory
 
 ## Home page & Copyright
 - HomePage <http://extensions.sondages.pro/>
