@@ -88,34 +88,37 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     public function newSurveySettings()
     {
         $event = $this->event;
-        foreach ($event->get('settings') as $name => $value)
+        if(!empty($event->get('settings')))
         {
-            /* Save as Question attribute settings : Bad hack */
-            $aSetting=explode("-",$name);
-            if($aSetting[0]=="question" && isset($aSetting[1]))
+            foreach ($event->get('settings') as $name => $value)
             {
-                $iQid=intval($aSetting[1]);
-                if($value==$this->getDefaultValue($aSetting[1]))
+                /* Save as Question attribute settings : Bad hack */
+                $aSetting=explode("-",$name);
+                if($aSetting[0]=="question" && isset($aSetting[1]))
                 {
-                    QuestionAttribute::model()->deleteAll("qid=:qid and attribute=:attribute",array(':qid'=>$iQid,":attribute"=>'arrayTextAdaptatation'));
+                    $iQid=intval($aSetting[1]);
+                    if($value==$this->getDefaultValue($aSetting[1]))
+                    {
+                        QuestionAttribute::model()->deleteAll("qid=:qid and attribute=:attribute",array(':qid'=>$iQid,":attribute"=>'arrayTextAdaptatation'));
+                    }
+                    else
+                    {
+                        $oAttribute=QuestionAttribute::model()->find("qid=:qid and attribute=:attribute",array(':qid'=>$iQid,":attribute"=>'arrayTextAdaptation'));
+                        if(!$oAttribute)
+                        {
+                            $oAttribute=new QuestionAttribute;
+                            $oAttribute->qid=$iQid;
+                            $oAttribute->attribute='arrayTextAdaptation';
+                        }
+                        $oAttribute->value=$value;
+                        $oAttribute->save();
+                    }
                 }
                 else
                 {
-                    $oAttribute=QuestionAttribute::model()->find("qid=:qid and attribute=:attribute",array(':qid'=>$iQid,":attribute"=>'arrayTextAdaptation'));
-                    if(!$oAttribute)
-                    {
-                        $oAttribute=new QuestionAttribute;
-                        $oAttribute->qid=$iQid;
-                        $oAttribute->attribute='arrayTextAdaptation';
-                    }
-                    $oAttribute->value=$value;
-                    $oAttribute->save();
+                    $default=$event->get($name,null,null,isset($this->settings[$name]['default'])?$this->settings[$name]['default']:null);
+                    $this->set($name, $value, 'Survey', $event->get('survey'),$default);
                 }
-            }
-            else
-            {
-                $default=$event->get($name,null,null,isset($this->settings[$name]['default'])?$this->settings[$name]['default']:null);
-                $this->set($name, $value, 'Survey', $event->get('survey'),$default);
             }
         }
     }

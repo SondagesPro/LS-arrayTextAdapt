@@ -23,7 +23,7 @@ A plugin for LimeSurvey to use dropdown in replace of input in array text
 ## Home page & Copyright
 - HomePage <http://extensions.sondages.pro/>
 - Copyright © 2016 Denis Chenu <http://sondages.pro>
-- Copyright © 2016  Comité Régional du Tourisme de Bretagne  <http://www.tourismebretagne.com/>
+- Copyright © 2016 Comité Régional du Tourisme de Bretagne  <http://www.tourismebretagne.com/>
 - This plugin use SmartDOMDocument © 2015 Artem Russakovskii <http://beerpla.net>
 
 Distributed under [GNU GENERAL PUBLIC LICENSE Version 3](http://www.gnu.org/licenses/gpl.txt) licence
