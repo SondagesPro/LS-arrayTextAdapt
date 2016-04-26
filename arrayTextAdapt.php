@@ -99,7 +99,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                     $iQid=intval($aSetting[1]);
                     if($value==$this->getDefaultValue($aSetting[1]))
                     {
-                        QuestionAttribute::model()->deleteAll("qid=:qid and attribute=:attribute",array(':qid'=>$iQid,":attribute"=>'arrayTextAdaptatation'));
+                        QuestionAttribute::model()->deleteAll("qid=:qid and attribute=:attribute",array(':qid'=>$iQid,":attribute"=>'arrayTextAdaptation'));
                     }
                     else
                     {
@@ -265,7 +265,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
         {
             $assetUrl = Yii::app()->assetManager->publish(dirname(__FILE__) . '/assets/public/');
             App()->clientScript->registerScriptFile($assetUrl.'/arraytextadapt.js');
-            App()->clientScript->registerScriptFile($assetUrl.'/arraytextadapt.csss');
+            App()->clientScript->registerScriptFile($assetUrl.'/arraytextadapt.css');
             Yii::app()->clientScript->registerCssFile(rtrim(Yii::app()->getConfig('publicurl'),"/") . '/plugins/cpVille/assets/cpville.css'); // @todo : move it to asset too
 
         }
