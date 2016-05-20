@@ -7,7 +7,7 @@
  * @copyright 2016 Denis Chenu <http://www.sondages.pro>
 
  * @license GPL v3
- * @version 0.0.1
+ * @version 0.1.0
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,6 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
         $this->subscribe('beforeSurveySettings');
         $this->subscribe('newSurveySettings');
         $this->subscribe('beforeQuestionRender');
-        $this->subscribe('newDirectRequest');
     }
 
     public function beforeSurveySettings()
@@ -189,10 +188,6 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
         }
 
     }
-    public function newDirectRequest()
-    {
-
-    }
 
     /**
      * get the array of existing dropdown type
@@ -336,7 +331,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                     $data,
                     $htmlOptions
                 );
-                return $newHtml;
+                return CHtml::tag("div",array('class'=>'select-item'),$newHtml);
             }
         }
 
