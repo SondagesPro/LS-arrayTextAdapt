@@ -16,12 +16,12 @@ A plugin for LimeSurvey to use dropdown in replace of input in array text
 
 ## Documentation
 - After adding your Array texts question type : go to survey settings / Plugins
-- All array text questioin type column ar shown wher you can choose the setting to use
+- All array text question type column (Y-axis) are shown and you can choose the setting to use
 - Demo survey : <http://demonstration.sondages.pro/194714?newtest=Y>
 - WIP : Demo survey 2.50 <http://limesurvey.sondages.pro/index.php/194714?newtest=Y>
 
 ## Home page & Copyright
-- HomePage <http://extensions.sondages.pro/>
+- HomePage <http://extensions.sondages.pro/arraytextadapt/>
 - Copyright © 2016 Denis Chenu <http://sondages.pro>
 - Copyright © 2016 Comité Régional du Tourisme de Bretagne  <http://www.tourismebretagne.com/>
 - This plugin use SmartDOMDocument © 2015 Artem Russakovskii <http://beerpla.net>
