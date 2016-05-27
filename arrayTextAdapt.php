@@ -87,9 +87,10 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     public function newSurveySettings()
     {
         $event = $this->event;
-        if(!empty($event->get('settings')))
+        $aSettings=$event->get('settings')
+        if(!empty($aSettings))
         {
-            foreach ($event->get('settings') as $name => $value)
+            foreach ($aSettings as $name => $value)
             {
                 /* Save as Question attribute settings : Bad hack */
                 $aSetting=explode("-",$name);
