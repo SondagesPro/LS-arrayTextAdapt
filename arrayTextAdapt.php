@@ -32,6 +32,10 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
         $this->subscribe('newSurveySettings');
         $this->subscribe('beforeQuestionRender');
     }
+    public function is_empty($var)
+    {
+        return empty($var);
+    }
 
     public function beforeSurveySettings()
     {
@@ -73,7 +77,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
 
             }
         }
-        if(!empty($aSettings))
+        if(!is_empty($aSettings))
         {
             $event->set("surveysettings.{$this->id}", array(
                 'name' => get_class($this),
@@ -87,7 +91,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     public function newSurveySettings()
     {
         $event = $this->event;
-        if(!empty($event->get('settings')))
+        if(!is_empty($event->get('settings')))
         {
             foreach ($event->get('settings') as $name => $value)
             {
