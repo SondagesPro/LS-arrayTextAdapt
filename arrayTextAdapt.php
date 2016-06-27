@@ -87,7 +87,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     public function newSurveySettings()
     {
         $event = $this->event;
-        $aSettings=$event->get('settings')
+        $aSettings=$event->get('settings');
         if(!empty($aSettings))
         {
             foreach ($aSettings as $name => $value)
