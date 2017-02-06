@@ -327,6 +327,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                 {
                     $data['']=gT('No answer');
                 }
+                $htmlOptions['id']='answer'.$inputDom->getAttribute("name");
                 $newHtml=CHtml::dropDownList(
                     $inputDom->getAttribute("name"), $inputDom->getAttribute("value"),
                     $data,

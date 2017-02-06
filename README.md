@@ -18,7 +18,7 @@ A plugin for LimeSurvey to use dropdown in replace of input in array text
 - After adding your Array texts question type : go to survey settings / Plugins
 - All array text question type column (Y-axis) are shown and you can choose the setting to use
 - Demo survey : <http://demonstration.sondages.pro/194714?newtest=Y>
-- WIP : Demo survey 2.50 <http://limesurvey.sondages.pro/index.php/194714?newtest=Y>
+- WIP : Demo survey 2.50 <http://demo.sondages.pro/194714?newtest=Y>
 
 ## Home page & Copyright
 - HomePage <http://extensions.sondages.pro/arraytextadapt/>
