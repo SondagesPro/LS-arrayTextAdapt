@@ -4,10 +4,11 @@
  *
  * @author Denis Chenu <denis@sondages.pro>
  * @copyright 2016 Comité Régional du Tourisme de Bretagne <http://www.tourismebretagne.com>
+ * @copyright 2016 Advantages <https://advantages.fr/>
  * @copyright 2016 Denis Chenu <http://www.sondages.pro>
 
  * @license GPL v3
- * @version 0.1.0
+ * @version 0.1.1
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +26,42 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     static protected $name = 'arrayTextAdapt';
     static protected $description = 'Use array text question type to show multiple dropdown to your users';
 
-
+    protected $settings = array(
+        'information'=>array(
+            'type'=>'info',
+            'content'=>'<p class="alert alert-info">Show functionality to choose, this settings is only apply for administrator</p>',
+        ),
+        'ville'=>array(
+            'type'=>'checkbox',
+            'label'=>'Activate saisie ville',
+            'default'=>1
+        ),
+        'numeric'=>array(
+            'type'=>'checkbox',
+            'label'=>'Activate numeric',
+            'default'=>1
+        ),
+        'integer'=>array(
+            'type'=>'checkbox',
+            'label'=>'Activate integer',
+            'default'=>1
+        ),
+        'checkbox'=>array(
+            'type'=>'checkbox',
+            'label'=>'Activate simple checkbox',
+            'default'=>1
+        ),
+        'checkboxNA'=>array(
+            'type'=>'checkbox',
+            'label'=>'Activate checkbox : set the value to other answer in line and hide it',
+            'default'=>1
+        ),
+        'stars'=>array(
+            'type'=>'string',
+            'label'=>'List of stars number (separated by comma) (with default you can use any number)',
+            'default'=>'5,10'
+        ),
+    );
     public function init()
     {
         $this->subscribe('beforeSurveySettings');
@@ -87,10 +123,9 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     public function newSurveySettings()
     {
         $event = $this->event;
-        $aSettings=$event->get('settings')
-        if(!empty($aSettings))
+        if(!empty($event->get('settings')))
         {
-            foreach ($aSettings as $name => $value)
+            foreach ($event->get('settings') as $name => $value)
             {
                 /* Save as Question attribute settings : Bad hack */
                 $aSetting=explode("-",$name);
@@ -144,10 +179,13 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                     'params'=>array(":parent_qid"=>$oEvent->get('qid'),":language"=>App()->language,":scale_id"=>0),
                     'select'=>'title',
                 ));
+
                 Yii::setPathOfAlias('archon810', dirname(__FILE__)."/vendor/archon810/smartdomdocument/src");
                 Yii::import('archon810.SmartDOMDocument');
                 $dom = new \archon810\SmartDOMDocument();
                 $dom->loadHTML($oEvent->get('answers'));
+                $resetColumns=false;
+                $aColumnsClass=array();
                 foreach($oExistingAttribute as $oAttribute)
                 {
                     $oQuestionX=$aoSubQuestionX[$oAttribute->qid];
@@ -155,7 +193,6 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                     {
                         $sAnswerId="answer{$oEvent->get('surveyId')}X{$oEvent->get('gid')}X{$oEvent->get('qid')}{$aSubQuestionY->title}_{$oQuestionX->title}";
                         $inputDom=$dom->getElementById($sAnswerId);
-
                         if(!is_null($inputDom))
                         {
                             switch ($oAttribute->value)
@@ -169,7 +206,31 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                                 case 'integer':
                                     $this->setIntegerAttributes($inputDom);
                                     break;
+                                case 'checkboxNA':
+                                    if($sCheckboxHtml=$this->getCheckboxHtml($inputDom,$oQuestionX->title))
+                                    {
+                                        $newDoc = $dom->createDocumentFragment();
+                                        $newDoc->appendXML($sCheckboxHtml);
+                                        $inputDom->parentNode->replaceChild($newDoc,$inputDom);
+                                        $resetColumns=true;
+                                    }
+                                    break;
+                                case 'checkbox':
+                                    if($sCheckboxHtml=$this->getCheckboxHtml($inputDom))
+                                    {
+                                        $newDoc = $dom->createDocumentFragment();
+                                        $newDoc->appendXML($sCheckboxHtml);
+                                        $inputDom->parentNode->replaceChild($newDoc,$inputDom);
+                                        $resetColumns=true;
+                                    }
+                                    break;
                                 default:
+                                    if(substr($oAttribute->value, 0, 4) === "star" && ctype_digit(substr($oAttribute->value, 4)))
+                                    {
+                                        $this->setStarAttributes($inputDom,substr($oAttribute->value, 4));
+                                        $resetColumns=true;
+                                        break;
+                                    }
                                     if(substr($oAttribute->value, 0, 5) === "label" && ctype_digit(substr($oAttribute->value, 5)))
                                     {
                                         if($sLabelHtml=$this->getLabelHtml(substr($oAttribute->value, 5),$inputDom))
@@ -177,9 +238,42 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                                             $newDoc = $dom->createDocumentFragment();
                                             $newDoc->appendXML($sLabelHtml);
                                             $inputDom->parentNode->replaceChild($newDoc,$inputDom);
+                                            break;
                                         }
                                     }
                             }
+                        }
+                    }
+                }
+                /* $resetColumns=true => need to reset the column class and width */
+                if($resetColumns)
+                {
+                    $aColumnsClass=array();
+                    foreach($aoSubQuestionX as $oSubQuestionX)
+                    {
+                        $oAttributeArrayTextAdapt=QuestionAttribute::model()->find("qid=:qid AND attribute=:attribute",array(":qid"=>$oSubQuestionX->qid,":attribute"=>"arrayTextAdaptation"));
+                        if($oAttributeArrayTextAdapt && $oAttributeArrayTextAdapt->value)
+                        {
+                            $aColumnsClass[]="ata-col-".$oAttributeArrayTextAdapt->value;
+                        }else{
+                            $aColumnsClass[]="ata-col-text";
+                        }
+                    }
+                    $first=true;
+                    $index=0;
+                    foreach($dom->getElementsByTagName('col') as $col)
+                    {
+                        /* first : answertext */
+                        if($first){
+                            $first=false;
+                        }else{
+                            $newClass=$aColumnsClass[$index];
+                            if(substr($newClass,0,16)=="ata-col-checkbox" || substr($newClass,0,12)=="ata-col-star"){
+                                $col->removeAttribute("width");
+                            }
+                            $cssClass=$col->getAttribute("class");
+                            $col->setAttribute("class",$cssClass." ".$newClass);
+                            $index++;
                         }
                     }
                 }
@@ -199,14 +293,42 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
         /* Test if saisieVille exist and is activated */
         if(Plugin::model()->find("name='cpVille' and active=1"))
         {
-            $aDropDownType['ville']='Saisie de ville';
+            if($this->get('ville',null,null,$this->settings['ville']['default'])){
+                $aDropDownType['ville']='Saisie de ville';
+            }
         }
         else
         {
             tracevar("cpVille plugin not present or not activated.");
         }
-        $aDropDownType['numeric']=gT("Numerical Input");
-        $aDropDownType['integer']=gT("Integer only");
+        if($this->get('numeric',null,null,$this->settings['numeric']['default'])){
+            $aDropDownType['numeric']=gT("Numerical Input");
+        }
+        if($this->get('integer',null,null,$this->settings['integer']['default'])){
+            $aDropDownType['integer']=gT("Integer only");
+        }
+        if($this->get('checkbox',null,null,$this->settings['checkbox']['default'])){
+            $aDropDownType['checkbox']=gT("Single checkbox");
+        }
+        if($this->get('checkboxNA',null,null,$this->settings['checkboxNA']['default'])){
+            $aDropDownType['checkboxNA']=gT("Single checkbox")." (".gT("Set other answers").")";
+        }
+        $aStars=explode(",",$this->get('stars',null,null,$this->settings['stars']['default']));
+        if(!empty($aStars))
+        {
+            if(count($aStars))
+            {
+                $aDropDownType[gT("stars")]=array();
+                foreach($aStars as $sStar)
+                {
+                    $sStar=intval($sStar);
+                    if($sStar > 0){
+                        $aDropDownType[gT("stars")]['star'.$sStar]=$sStar." ".gT("stars");
+                    }
+                }
+            }
+        }
+        /* Always add the label : is done for this */
         if (Permission::model()->hasGlobalPermission('labelsets','read'))
         {
             $oLabels=LabelSet::model()->findAll(array("order"=>"label_name"));
@@ -222,21 +344,25 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
         }
         return $aDropDownType;
     }
+
     /**
      * get the actual value for a qid
      */
-    public function getActualValue($iQid)
+    public function getActualValue($iQid,$withdefault=true)
     {
         $oAttribute=QuestionAttribute::model()->find("qid=:qid and attribute=:attribute",array(':qid'=>$iQid,":attribute"=>'arrayTextAdaptation'));
-        if($oAttribute)
+        if($oAttribute && $oAttribute->value)
         {
             return $oAttribute->value;
         }
-        else
+        elseif($withdefault)
         {
             return $this->getDefaultValue($iQid);
         }
-
+        else
+        {
+            return "";
+        }
     }
     /**
      * get the default value for a qid
@@ -251,20 +377,8 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
      */
     public function setVilleAttributes($inputDom)
     {
-        if(YII_DEBUG)
-        {
-            Yii::app()->getClientScript()->registerScriptFile(rtrim(Yii::app()->getConfig('publicurl'),"/")."/plugins/arrayTextAdapt/assets/public/arraytextadapt.js");
-            Yii::app()->getClientScript()->registerScriptFile(rtrim(Yii::app()->getConfig('publicurl'),"/")."/plugins/arrayTextAdapt/assets/public/arraytextadapt.css");
-            Yii::app()->clientScript->registerCssFile(rtrim(Yii::app()->getConfig('publicurl'),"/") . '/plugins/cpVille/assets/cpville.css');
-        }
-        else
-        {
-            $assetUrl = Yii::app()->assetManager->publish(dirname(__FILE__) . '/assets/public/');
-            App()->clientScript->registerScriptFile($assetUrl.'/arraytextadapt.js');
-            App()->clientScript->registerScriptFile($assetUrl.'/arraytextadapt.css');
-            Yii::app()->clientScript->registerCssFile(rtrim(Yii::app()->getConfig('publicurl'),"/") . '/plugins/cpVille/assets/cpville.css'); // @todo : move it to asset too
-
-        }
+        $this->registerCssJs();
+        Yii::app()->clientScript->registerCssFile(rtrim(Yii::app()->getConfig('publicurl'),"/") . '/plugins/cpVille/assets/cpville.css');
         $aOptions=array();
         $aOption['jsonurl']=$this->api->createUrl('plugins/direct', array('plugin' => "cpVille",'function' => 'auto'));
         $sScript="arrayTextAdapt=".json_encode($aOption).";\n"."cpvilleinarray();\n";
@@ -295,7 +409,24 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
         $inputDom->setAttribute('onkeyup',"fixnum_checkconditions(this.value, this.name, this.type,'onchange',1)");
     }
     /**
-     * return a saisieVille input
+     * set dom to star attribue
+     */
+    public function setStarAttributes($inputDom,$iStars)
+    {
+        $sFontAsset=App()->assetManager->publish(App()->getConfig('rootdir').'/third_party/font-awesome');
+        App()->getClientScript()->registerCssFile($sFontAsset. '/css/font-awesome.css');
+        $this->registerCssJs();
+        $showNoAnswer=(bool)(trim($this->event->get('man_class'))!="mandatory" && SHOW_NO_ANSWER);
+
+        $class=$inputDom->getAttribute('class');
+        $inputDom->setAttribute('class',$class." star");
+        $inputDom->setAttribute('data-stars',$iStars);
+        $inputDom->setAttribute('data-shownoanswer',$showNoAnswer);
+
+        Yii::app()->getClientScript()->registerScript("setStarAttributes","setStarAttributes();\n",CClientScript::POS_END);
+    }
+    /**
+     * return a dropdown by label input
      */
     public function getLabelHtml($iLid,$inputDom)
     {
@@ -319,6 +450,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
             {
                 $data=CHtml::listData($oLabelsSets,'code','title');
                 $htmlOptions=array ( );
+                $htmlOptions['class']='select-array';
                 if($inputDom->getAttribute("value")=="")
                 {
                     $htmlOptions['empty']=gT('Please choose...');
@@ -335,7 +467,59 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                 return CHtml::tag("div",array('class'=>'select-item'),$newHtml);
             }
         }
+    }
+    /**
+     * return a checkbox with text system
+     */
+    public function getCheckboxHtml($inputDom,$codeToSet=null)
+    {
+        $this->registerCssJs();
+        $htmlOptions=array(
+            'id'=>'cb'.$inputDom->getAttribute("name"),
+            'class'=>'checkbox-arrayTextAdapt checkbox',
+            'value'=>"Y",
+            'uncheckValue'=>((bool)$this->event->get('man_class')=="mandatory" ? "N" : ""),
+            'data-update'=>'answer'.$inputDom->getAttribute("name"),
+        );
+        if($codeToSet)
+        {
+            $htmlOptions['data-setline']=$codeToSet;
+        }
+        $noValue=((bool)$this->event->get('man_class')=="mandatory" ? "N" : "");
+        $value= ($inputDom->getAttribute("value")=="" || $inputDom->getAttribute("value")==$noValue) ? $noValue : "Y";
 
-
+        $newHtml=CHtml::checkBox(
+            $inputDom->getAttribute("name"),
+            $value=="Y",
+            $htmlOptions
+        );
+        $newHtml.=CHtml::textField(
+            $inputDom->getAttribute("name"),
+            $value,
+            array(
+                'id'=>'answer'.$inputDom->getAttribute("name"),
+                'class'=>'hidden',
+                'style'=>'display:none',
+                'disabled'=>true,
+            )
+        );
+        return $newHtml;
+    }
+    /**
+     * register public js and css
+     */
+    public function registerCssJs()
+    {
+        if(YII_DEBUG)
+        {
+            Yii::app()->getClientScript()->registerScriptFile(rtrim(Yii::app()->getConfig('publicurl'),"/")."/plugins/arrayTextAdapt/assets/public/arraytextadapt.js");
+            Yii::app()->getClientScript()->registerCssFile(rtrim(Yii::app()->getConfig('publicurl'),"/")."/plugins/arrayTextAdapt/assets/public/arraytextadapt.css");
+        }
+        else
+        {
+            $assetUrl = Yii::app()->assetManager->publish(dirname(__FILE__) . '/assets/public/');
+            App()->clientScript->registerScriptFile($assetUrl.'/arraytextadapt.js');
+            App()->clientScript->registerCssFile($assetUrl.'/arraytextadapt.css');
+        }
     }
 }

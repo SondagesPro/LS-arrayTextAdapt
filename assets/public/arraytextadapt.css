@@ -1,1 +1,14 @@
 
+.arraytextadapt-hidden *{
+    visibility: hidden !important;
+    opacity: 0;
+-webkit-transition-duration: 0ms;
+transition-duration: 0ms;
+}
+.radiostar-rating.fa{font-size:3em}
+.radiostar-rating{cursor:pointer}
+
+.radiostar-cancel{color:#CCC}
+.radiostar-cancel:hover{color: #a94442;}
+.radiostar{color:#337ab7}
+.radiostar-rated{color:#31708f;}
