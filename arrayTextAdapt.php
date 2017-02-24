@@ -8,7 +8,7 @@
  * @copyright 2016 Denis Chenu <http://www.sondages.pro>
 
  * @license GPL v3
- * @version 0.1.1
+ * @version 1.0.2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,9 +123,9 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     public function newSurveySettings()
     {
         $event = $this->event;
-        if(!empty($event->get('settings')))
-        {
-            foreach ($event->get('settings') as $name => $value)
+        $aSettings=$event->get('settings');
+        if(!empty($aSettings)) {
+            foreach ($aSettings as $name => $value)
             {
                 /* Save as Question attribute settings : Bad hack */
                 $aSetting=explode("-",$name);
@@ -459,6 +459,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                 {
                     $data['']=gT('No answer');
                 }
+                $htmlOptions['id']='answer'.$inputDom->getAttribute("name");
                 $newHtml=CHtml::dropDownList(
                     $inputDom->getAttribute("name"), $inputDom->getAttribute("value"),
                     $data,
