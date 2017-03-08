@@ -147,7 +147,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                 Yii::setPathOfAlias('archon810', dirname(__FILE__)."/vendor/archon810/smartdomdocument/src");
                 Yii::import('archon810.SmartDOMDocument');
                 $dom = new \archon810\SmartDOMDocument();
-                $dom->loadHTML($oEvent->get('answers'));
+                $dom->loadHTML("<!DOCTYPE html>".$oEvent->get('answers'));
                 foreach($oExistingAttribute as $oAttribute)
                 {
                     $oQuestionX=$aoSubQuestionX[$oAttribute->qid];
