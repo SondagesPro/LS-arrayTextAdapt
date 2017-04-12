@@ -166,6 +166,8 @@ $(document).ready(function(){
   });
   /* fix label/checkbox place */
 		$('.checkbox-arrayTextAdapt').closest("td").each(function(){
-      $(this).closest("td").find('label').attr('for',$(this).find(".checkbox-arrayTextAdapt").attr('id')).appendTo($(this));
+      var inputElem=$(this).find(".checkbox-arrayTextAdapt");
+      $(this).closest("td").find('label').attr('for',$(inputElem).attr('id')).removeClass("visible-xs-block").addClass("checkbox-label-arrayTextAdapt").insertAfter($(inputElem));
+      $(this).closest("td").addClass("checkbox-item checkbox")
 		});
 });

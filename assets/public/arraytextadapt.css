@@ -5,6 +5,7 @@
 -webkit-transition-duration: 0ms;
 transition-duration: 0ms;
 }
+.checkbox .checkbox-label-arrayTextAdapt{padding-left:0}
 .radiostar-rating.fa{font-size:3em}
 .radiostar-rating{cursor:pointer}
 

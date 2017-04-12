@@ -71,7 +71,20 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
 
     public function beforeSurveySettings()
     {
+
         $event = $this->event;
+        if(!class_exists('\toolsDomDocument\SmartDOMDocument')) {
+            $event->set("surveysettings.{$this->id}", array(
+                'name' => get_class($this),
+                'settings' => array(
+                    "error"=>array(
+                        'type'=>'info',
+                        'content'=>"<div class='alert alert-warning'>toolsSmartDomDocument plugin must be activated</div>",
+                    ),
+                ),
+            ));
+            return;
+        }
         $aSettings=array();
         $oSurvey=Survey::model()->findByPk($event->get('survey'));
         $aoQuestionArrayText=Question::model()->with('groups')->findAll(array(
@@ -159,6 +172,10 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     }
     public function beforeQuestionRender()
     {
+        if(!class_exists('\toolsDomDocument\SmartDOMDocument')) {
+            Yii::log("toolsSmartDomDocument plugin must be activated", 'error','application.plugins.arrayTextAdapt.beforeQuestionRender');
+            return;
+        }
         $oEvent=$this->getEvent();
         $sType=$oEvent->get('type');
         if($sType==";")
@@ -179,11 +196,8 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                     'params'=>array(":parent_qid"=>$oEvent->get('qid'),":language"=>App()->language,":scale_id"=>0),
                     'select'=>'title',
                 ));
-
-                Yii::setPathOfAlias('archon810', dirname(__FILE__)."/vendor/archon810/smartdomdocument/src");
-                Yii::import('archon810.SmartDOMDocument');
-                $dom = new \archon810\SmartDOMDocument();
-                $dom->loadHTML("<!DOCTYPE html>".$oEvent->get('answers'));
+                $dom = new \toolsDomDocument\SmartDOMDocument();
+                $dom->loadPartialHTML($oEvent->get('answers'));
                 $resetColumns=false;
                 $aColumnsClass=array();
 
@@ -222,6 +236,8 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                                         $newDoc = $dom->createDocumentFragment();
                                         $newDoc->appendXML($sCheckboxHtml);
                                         $inputDom->parentNode->replaceChild($newDoc,$inputDom);
+                                        //~ $class=$inputDom->parentNode->getAttribute('class');
+                                        //~ $inputDom->parentNode->setAttribute('class',$class." checkbox-item checkbox");
                                         $resetColumns=true;
                                     }
                                     break;
@@ -300,7 +316,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
         }
         else
         {
-            tracevar("cpVille plugin not present or not activated.");
+            //tracevar("cpVille plugin not present or not activated.");
         }
         if($this->get('numeric',null,null,$this->settings['numeric']['default'])){
             $aDropDownType['numeric']=gT("Numerical Input");
@@ -496,6 +512,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
             $value=="Y",
             $htmlOptions
         );
+        /* For js of EM */
         $newHtml.=CHtml::textField(
             $inputDom->getAttribute("name"),
             $value,
