@@ -1,9 +1,5 @@
-
 .arraytextadapt-hidden *{
-    visibility: hidden !important;
-    opacity: 0;
--webkit-transition-duration: 0ms;
-transition-duration: 0ms;
+    color:rgba(0, 0, 0, 0);
 }
 .checkbox .checkbox-label-arrayTextAdapt{padding-left:0}
 .radiostar-rating.fa{font-size:3em}

@@ -19,7 +19,7 @@ $(document).on("change",'.checkbox-arrayTextAdapt',function(){
     if($(this).data("setline"))
     {
       $(this).closest('.questions-list').find('input:checkbox').not($(this)).next("input:text").prop("disabled",false);
-      $(this).closest('.questions-list').find('input:text').val($(this).data("setline")).trigger("keyup");
+      $(this).closest('.questions-list').find('input:text').val($(this).data("setline")).prop("disabled",true).trigger("keyup");
       var thiscell=$(this).closest('.answer-item');
       $(this).closest('.questions-list').find('.answer-item').not(thiscell).addClass("text-hidden arraytextadapt-hidden");
     }
@@ -29,14 +29,13 @@ $(document).on("change",'.checkbox-arrayTextAdapt',function(){
     if($(this).data("setline"))
     {
       $(this).closest('.questions-list').find('input:checkbox').not($(this)).next("input:text").prop("disabled",true);
-      $(this).closest('.questions-list').find('input:text').val("").trigger("keyup");
+      $(this).closest('.questions-list').find('input:text').val("").prop("disabled",false).trigger("keyup");
       $(this).closest('.questions-list').find('.answer-item').removeClass("text-hidden arraytextadapt-hidden");
     }
   }
    $("#"+$(this).data('update')).keyup();
-
 });
-
+$(document).off('.checkbox-label-arrayTextAdapt');
 /**
  * Function to call for cpVille
  */
@@ -165,9 +164,10 @@ $(document).ready(function(){
     }
   });
   /* fix label/checkbox place */
-		$('.checkbox-arrayTextAdapt').closest("td").each(function(){
+    $('.checkbox-arrayTextAdapt').closest("td").each(function(){
       var inputElem=$(this).find(".checkbox-arrayTextAdapt");
-      $(this).closest("td").find('label').attr('for',$(inputElem).attr('id')).removeClass("visible-xs-block").addClass("checkbox-label-arrayTextAdapt").insertAfter($(inputElem));
-      $(this).closest("td").addClass("checkbox-item checkbox")
-		});
+      var txtLabel=$(this).closest("td").find('label').text(); /* Else ls have issue  */
+      $(this).closest("td").find('label').html(txtLabel).attr('for',$(inputElem).attr('id')).removeClass("visible-xs-block").addClass("checkbox-label-arrayTextAdapt").insertAfter($(inputElem));
+      $(this).closest("td").addClass("checkbox checkbox-item-arrayTextAdapt");
+    });
 });
