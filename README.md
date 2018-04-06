@@ -1,9 +1,13 @@
 arrayTextAdapt
 ==============
 
-A plugin for LimeSurvey to use dropdown in replace of input in array text
+A plugin for LimeSurvey to use dropdown in replace of input in array text.
+
+_This plugin is not LimeSurvey 3.0 compatible, since LimeSUrvey 3.0 allow Question template, we can not use same behaviour_
 
 ## Installation
+
+**Downloading zip file via GIT repository didn't work, you need to download the fixed zip for this, or to use `git clone --recursive`**
 
 ### Via GIT
 - Go to your LimeSurvey Directory (version up to 2.06 only)
@@ -18,7 +22,7 @@ A plugin for LimeSurvey to use dropdown in replace of input in array text
 - After adding your Array texts question type : go to survey settings / Plugins
 - All array text question type column (Y-axis) are shown and you can choose the setting to use
 - Demo survey : <http://demonstration.sondages.pro/194714?newtest=Y>
-- WIP : Demo survey 2.50 <http://demo.sondages.pro/194714?newtest=Y>
+- Demo survey 2.50 <http://demo.sondages.pro/194714?newtest=Y>
 
 ## Home page & Copyright
 - HomePage <http://extensions.sondages.pro/arraytextadapt/>
