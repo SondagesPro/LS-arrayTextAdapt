@@ -3,15 +3,14 @@
  * arrayTextAdapt : a LimeSurvey plugin to update array text question with some dropdpown
  *
  * @author Denis Chenu <denis@sondages.pro>
+ * @copyright 2016-2018 Denis Chenu <http://www.sondages.pro>
  * @copyright 2016 Comité Régional du Tourisme de Bretagne <http://www.tourismebretagne.com>
- * @copyright 2016 Denis Chenu <http://www.sondages.pro>
-
- * @license GPL v3
- * @version 1.0.2
+ * @license AGPL v3
+ * @version 2.0.0
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,7 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
+class arrayTextAdapt  extends PluginBase {
     protected $storage = 'DbStorage';
 
     static protected $name = 'arrayTextAdapt';
@@ -28,16 +27,48 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
 
     public function init()
     {
+        $this->subscribe('beforeActivate');
         $this->subscribe('beforeSurveySettings');
         $this->subscribe('newSurveySettings');
         $this->subscribe('beforeQuestionRender');
     }
 
+    /**
+     * Show an alert if toolsSmartDomDocument is not here
+     */
+    public function beforeActivate()
+    {
+        $oToolsSmartDomDocument = Plugin::model()->find("name=:name",array(":name"=>'toolsDomDocument'));
+        if(!$oToolsSmartDomDocument)
+        {
+            $this->getEvent()->set('message', gT("You must download toolsSmartDomDocument plugin"));
+            $this->getEvent()->set('success', false);
+        }
+        elseif(!$oToolsSmartDomDocument->active)
+        {
+            $this->getEvent()->set('message', gT("You must activate toolsSmartDomDocument plugin"));
+            $this->getEvent()->set('success', false);
+        }
+    }
+
     public function beforeSurveySettings()
     {
+
         $event = $this->event;
         $aSettings=array();
         $oSurvey=Survey::model()->findByPk($event->get('survey'));
+        if(!Yii::getPathOfAlias('toolsDomDocument')) {
+            $event->set("surveysettings.{$this->id}", array(
+                'name' => get_class($this),
+                'settings' => array(
+                    'infoDisable' => array(
+                        'type'=>'info',
+                        'content'=> gT("You must download and activate toolsSmartDomDocument plugin")
+                    ),
+                ),
+            ));
+            return;
+        }
         $aoQuestionArrayText=Question::model()->with('groups')->findAll(array(
             'condition'=>"t.sid=:sid and t.language=:language and type=:type and parent_qid=0",
             'order'=>'group_order ASC, question_order ASC',
@@ -86,6 +117,9 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     }
     public function newSurveySettings()
     {
+        if(!Yii::getPathOfAlias('toolsDomDocument')) {
+            return;
+        }
         $event = $this->event;
         $aSettings=$event->get('settings');
         if(!empty($aSettings))
@@ -124,6 +158,9 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     }
     public function beforeQuestionRender()
     {
+        if(!Yii::getPathOfAlias('toolsDomDocument')) {
+            return;
+        }
         $oEvent=$this->getEvent();
         $sType=$oEvent->get('type');
         if($sType==";")
@@ -144,9 +181,7 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
                     'params'=>array(":parent_qid"=>$oEvent->get('qid'),":language"=>App()->language,":scale_id"=>0),
                     'select'=>'title',
                 ));
-                Yii::setPathOfAlias('archon810', dirname(__FILE__)."/vendor/archon810/smartdomdocument/src");
-                Yii::import('archon810.SmartDOMDocument');
-                $dom = new \archon810\SmartDOMDocument();
+                $dom = new \toolsDomDocument\SmartDOMDocument();
                 $dom->loadHTML("<!DOCTYPE html>".$oEvent->get('answers'));
                 foreach($oExistingAttribute as $oAttribute)
                 {
@@ -197,14 +232,14 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     {
         $aDropDownType=array();
         /* Test if saisieVille exist and is activated */
-        if(Plugin::model()->find("name='cpVille' and active=1"))
-        {
-            $aDropDownType['ville']='Saisie de ville';
-        }
-        else
-        {
-            tracevar("cpVille plugin not present or not activated.");
-        }
+        //~ if(Plugin::model()->find("name='cpVille' and active=1"))
+        //~ {
+            //~ $aDropDownType['ville']='Saisie de ville';
+        //~ }
+        //~ else
+        //~ {
+            //~ tracevar("cpVille plugin not present or not activated.");
+        //~ }
         $aDropDownType['numeric']=gT("Numerical Input");
         $aDropDownType['integer']=gT("Integer only");
         if (Permission::model()->hasGlobalPermission('labelsets','read'))
@@ -281,9 +316,10 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     {
         $class=$inputDom->getAttribute('class');
         $inputDom->setAttribute('class',$class." numeric");
-        $onkeyup=$inputDom->getAttribute('onkeyup');
-        $inputDom->setAttribute('onkeyup',"fixnum_checkconditions(this.value, this.name, this.type,'onchange',0)");
+        $onkeyup=$inputDom->setAttribute('data-number',1);
+        $onkeyup=$inputDom->setAttribute('data-integer',0);
     }
+
     /**
      * return a integer input
      */
@@ -291,8 +327,8 @@ class arrayTextAdapt  extends \ls\pluginmanager\PluginBase {
     {
         $class=$inputDom->getAttribute('class');
         $inputDom->setAttribute('class',$class." numeric integeronly");
-        $onkeyup=$inputDom->getAttribute('onkeyup');
-        $inputDom->setAttribute('onkeyup',"fixnum_checkconditions(this.value, this.name, this.type,'onchange',1)");
+        $onkeyup=$inputDom->setAttribute('data-number',1);
+        $onkeyup=$inputDom->setAttribute('data-integer',1);
     }
     /**
      * return a saisieVille input

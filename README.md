@@ -3,31 +3,29 @@ arrayTextAdapt
 
 A plugin for LimeSurvey to use dropdown in replace of input in array text.
 
-_This plugin is not LimeSurvey 3.0 compatible, since LimeSUrvey 3.0 allow Question template, we can not use same behaviour_
-
 ## Installation
 
-**Downloading zip file via GIT repository didn't work, you need to download the fixed zip for this, or to use `git clone --recursive`**
+You need [toolsDomDocument](https://gitlab.com/SondagesPro/coreAndTools/toolsDomDocument).
 
 ### Via GIT
-- Go to your LimeSurvey Directory (version up to 2.06 only)
-- Clone with Submodule in plugins/arrayTextAdapt directory `git clone --recursive https://git.framasoft.org/SondagePro-LimeSurvey-plugin/arrayTextAdapt.git arrayTextAdapt`
+
+- Go to your LimeSurvey Directory (version up to 3.0 only)
+- Clone plugins/arrayTextAdapt directory `git clone https://gitlab.com/SondagesPro/QuestionSettingsType/arrayTextAdapt.git`
 
 ### Via ZIP dowload
-- Download <http://extensions.sondages.pro/IMG/auto/arrayTextAdapt.zip> or <http://extensions.sondages.pro/IMG/auto/arrayTextAdapt.tar>
+- Download <http://extensions.sondages.pro/IMG/auto/arrayTextAdapt.zip> or <http://dl.sondages.pro/arrayTextAdapt.tar>
 - Extract : `unzip arrayTextAdapt.zip`
 - Move the directory to  plugins/ directory inside LimeSUrvey
 
 ## Documentation
+
 - After adding your Array texts question type : go to survey settings / Plugins
 - All array text question type column (Y-axis) are shown and you can choose the setting to use
-- Demo survey : <http://demonstration.sondages.pro/194714?newtest=Y>
-- Demo survey 2.50 <http://demo.sondages.pro/194714?newtest=Y>
+- Demo survey <http://demo.sondages.pro/194714?newtest=Y>
 
 ## Home page & Copyright
 - HomePage <http://extensions.sondages.pro/arraytextadapt/>
-- Copyright © 2016 Denis Chenu <http://sondages.pro>
+- Copyright © 2016-2018 Denis Chenu <http://sondages.pro>
 - Copyright © 2016 Comité Régional du Tourisme de Bretagne  <http://www.tourismebretagne.com/>
-- This plugin use SmartDOMDocument © 2015 Artem Russakovskii <http://beerpla.net>
 
-Distributed under [GNU GENERAL PUBLIC LICENSE Version 3](http://www.gnu.org/licenses/gpl.txt) licence
+Distributed under [GNU GENERAL AFFERO PUBLIC LICENSE Version 3](http://www.gnu.org/licenses/agpl.txt) licence
