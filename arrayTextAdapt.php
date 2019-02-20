@@ -6,7 +6,7 @@
  * @copyright 2016-2018 Denis Chenu <http://www.sondages.pro>
  * @copyright 2016 Comité Régional du Tourisme de Bretagne <http://www.tourismebretagne.com>
  * @license AGPL v3
- * @version 2.0.0
+ * @version 2.0.1
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -93,9 +93,6 @@ class arrayTextAdapt  extends PluginBase {
                     'type'=>'select',
                     'label'=>"<span class='label label-info'>{$oSubQuestionY->title}</span>".viewHelper::flatEllipsizeText($oSubQuestionY->question,true,80),
                     'options'=>$aDropDownType,
-                    'selectOptions'=>array(
-                        'placeholder'=> gT('None'),
-                    ),
                     'htmlOptions'=>array(
                         'empty' => gT('None'),
                     ),
