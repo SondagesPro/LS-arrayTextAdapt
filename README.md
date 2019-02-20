@@ -21,7 +21,8 @@ You need [toolsDomDocument](https://gitlab.com/SondagesPro/coreAndTools/toolsDom
 
 - After adding your Array texts question type : go to survey settings / Plugins
 - All array text question type column (Y-axis) are shown and you can choose the setting to use
-- Demo survey <http://demo.sondages.pro/194714?newtest=Y>
+- Demo survey <https://demo.sondages.pro/194714?newtest=Y>
+
 
 ## Home page & Copyright
 - HomePage <http://extensions.sondages.pro/arraytextadapt/>
