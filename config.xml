@@ -8,7 +8,7 @@
         <author>Denis Chenu</author>
         <authorUrl>https://extensions.sondages.pro/questions-updating-and-managing/arraytextadapt/</authorUrl>
         <supportUrl>https://www.sondages.pro/contact</supportUrl>
-        <version>2.0.1</version>
+        <version>2.0.2</version>
         <license>GNU Affero General Public License v3.0</license>
         <description><![CDATA[A LimeSurvey plugin to update array text question with some dropdpown.]]></description>
     </metadata>

@@ -6,7 +6,7 @@
  * @copyright 2016-2018 Denis Chenu <http://www.sondages.pro>
  * @copyright 2016 Comité Régional du Tourisme de Bretagne <http://www.tourismebretagne.com>
  * @license AGPL v3
- * @version 2.0.1
+ * @version 2.0.2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -298,7 +298,7 @@ class arrayTextAdapt  extends PluginBase {
 
         }
         $aOptions=array();
-        $aOption['jsonurl']=$this->api->createUrl('plugins/direct', array('plugin' => "cpVille",'function' => 'auto'));
+        $aOption['jsonurl']=Yii::app()->createUrl('plugins/direct', array('plugin' => "cpVille",'function' => 'auto'));
         $sScript="arrayTextAdapt=".json_encode($aOption).";\n"."cpvilleinarray();\n";
         Yii::app()->getClientScript()->registerScript("saisievillearray",$sScript,CClientScript::POS_END);
 
