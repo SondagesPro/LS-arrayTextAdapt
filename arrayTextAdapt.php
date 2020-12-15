@@ -3,10 +3,10 @@
  * arrayTextAdapt : a LimeSurvey plugin to update array text question with some dropdpown
  *
  * @author Denis Chenu <denis@sondages.pro>
- * @copyright 2016-2018 Denis Chenu <http://www.sondages.pro>
+ * @copyright 2016-2020 Denis Chenu <http://www.sondages.pro>
  * @copyright 2016 Comité Régional du Tourisme de Bretagne <http://www.tourismebretagne.com>
  * @license AGPL v3
- * @version 2.0.2
+ * @version 3.0.0
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -38,6 +38,9 @@ class arrayTextAdapt  extends PluginBase {
      */
     public function beforeActivate()
     {
+        if (!$this->getEvent()) {
+            throw new CHttpException(403);
+        }
         $oToolsSmartDomDocument = Plugin::model()->find("name=:name",array(":name"=>'toolsDomDocument'));
         if(!$oToolsSmartDomDocument)
         {
@@ -53,7 +56,9 @@ class arrayTextAdapt  extends PluginBase {
 
     public function beforeSurveySettings()
     {
-
+        if (!$this->getEvent()) {
+            throw new CHttpException(403);
+        }
         $event = $this->event;
         $aSettings=array();
         $oSurvey=Survey::model()->findByPk($event->get('survey'));
@@ -114,6 +119,9 @@ class arrayTextAdapt  extends PluginBase {
     }
     public function newSurveySettings()
     {
+        if (!$this->getEvent()) {
+            throw new CHttpException(403);
+        }
         if(!Yii::getPathOfAlias('toolsDomDocument')) {
             return;
         }
@@ -155,6 +163,9 @@ class arrayTextAdapt  extends PluginBase {
     }
     public function beforeQuestionRender()
     {
+        if (!$this->getEvent()) {
+            throw new CHttpException(403);
+        }
         if(!Yii::getPathOfAlias('toolsDomDocument')) {
             return;
         }
@@ -225,7 +236,7 @@ class arrayTextAdapt  extends PluginBase {
     /**
      * get the array of existing dropdown type
      */
-    public function getDropdownType()
+    private function getDropdownType()
     {
         $aDropDownType=array();
         /* Test if saisieVille exist and is activated */
@@ -257,7 +268,7 @@ class arrayTextAdapt  extends PluginBase {
     /**
      * get the actual value for a qid
      */
-    public function getActualValue($iQid)
+    private function getActualValue($iQid)
     {
         $oAttribute=QuestionAttribute::model()->find("qid=:qid and attribute=:attribute",array(':qid'=>$iQid,":attribute"=>'arrayTextAdaptation'));
         if($oAttribute)
@@ -273,7 +284,7 @@ class arrayTextAdapt  extends PluginBase {
     /**
      * get the default value for a qid
      */
-    public function getDefaultValue($iQid)
+    private function getDefaultValue($iQid)
     {
         return '';
     }
@@ -281,7 +292,7 @@ class arrayTextAdapt  extends PluginBase {
     /**
      * return a saisieVille input
      */
-    public function setVilleAttributes($inputDom)
+    private function setVilleAttributes($inputDom)
     {
         if(YII_DEBUG)
         {
@@ -309,7 +320,7 @@ class arrayTextAdapt  extends PluginBase {
     /**
      * return a numeric input
      */
-    public function setNumericAttributes($inputDom)
+    private function setNumericAttributes($inputDom)
     {
         $class=$inputDom->getAttribute('class');
         $inputDom->setAttribute('class',$class." numeric");
@@ -320,7 +331,7 @@ class arrayTextAdapt  extends PluginBase {
     /**
      * return a integer input
      */
-    public function setIntegerAttributes($inputDom)
+    private function setIntegerAttributes($inputDom)
     {
         $class=$inputDom->getAttribute('class');
         $inputDom->setAttribute('class',$class." numeric integeronly");
@@ -330,7 +341,7 @@ class arrayTextAdapt  extends PluginBase {
     /**
      * return a saisieVille input
      */
-    public function getLabelHtml($iLid,$inputDom)
+    private function getLabelHtml($iLid,$inputDom)
     {
         /* Get this label */
         if(LabelSet::model()->find("lid=:lid",array(":lid"=>$iLid)))
