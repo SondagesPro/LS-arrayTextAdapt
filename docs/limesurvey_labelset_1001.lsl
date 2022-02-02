@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+ <LimeSurveyDocType>Label set</LimeSurveyDocType>
+ <DBVersion>356</DBVersion>
+ <labelsets>
+  <fields>
+   <fieldname>lid</fieldname>
+   <fieldname>label_name</fieldname>
+   <fieldname>languages</fieldname>
+  </fields>
+  <rows>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <label_name><![CDATA[Importance : 7 tranches]]></label_name>
+    <languages><![CDATA[en fr nl]]></languages>
+   </row>
+  </rows>
+ </labelsets>
+ <labels>
+  <fields>
+   <fieldname>lid</fieldname>
+   <fieldname>code</fieldname>
+   <fieldname>title</fieldname>
+   <fieldname>sortorder</fieldname>
+   <fieldname>language</fieldname>
+   <fieldname>assessment_value</fieldname>
+  </fields>
+  <rows>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[01]]></code>
+    <title><![CDATA[Very unimportant]]></title>
+    <sortorder><![CDATA[0]]></sortorder>
+    <language><![CDATA[en]]></language>
+    <assessment_value><![CDATA[1]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[01]]></code>
+    <title><![CDATA[Pas du tout important]]></title>
+    <sortorder><![CDATA[0]]></sortorder>
+    <language><![CDATA[fr]]></language>
+    <assessment_value><![CDATA[1]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[01]]></code>
+    <title><![CDATA[Erg onbelangrijk]]></title>
+    <sortorder><![CDATA[0]]></sortorder>
+    <language><![CDATA[nl]]></language>
+    <assessment_value><![CDATA[1]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[02]]></code>
+    <title><![CDATA[Unimportant]]></title>
+    <sortorder><![CDATA[1]]></sortorder>
+    <language><![CDATA[en]]></language>
+    <assessment_value><![CDATA[2]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[02]]></code>
+    <title><![CDATA[Pas important]]></title>
+    <sortorder><![CDATA[1]]></sortorder>
+    <language><![CDATA[fr]]></language>
+    <assessment_value><![CDATA[2]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[02]]></code>
+    <title><![CDATA[Onbelangrijk]]></title>
+    <sortorder><![CDATA[1]]></sortorder>
+    <language><![CDATA[nl]]></language>
+    <assessment_value><![CDATA[2]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[03]]></code>
+    <title><![CDATA[Slightly unimportant]]></title>
+    <sortorder><![CDATA[2]]></sortorder>
+    <language><![CDATA[en]]></language>
+    <assessment_value><![CDATA[3]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[03]]></code>
+    <title><![CDATA[Peu important]]></title>
+    <sortorder><![CDATA[2]]></sortorder>
+    <language><![CDATA[fr]]></language>
+    <assessment_value><![CDATA[3]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[03]]></code>
+    <title><![CDATA[Enigszins onbelangrijk]]></title>
+    <sortorder><![CDATA[2]]></sortorder>
+    <language><![CDATA[nl]]></language>
+    <assessment_value><![CDATA[3]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[04]]></code>
+    <title><![CDATA[Neutral]]></title>
+    <sortorder><![CDATA[3]]></sortorder>
+    <language><![CDATA[en]]></language>
+    <assessment_value><![CDATA[4]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[04]]></code>
+    <title><![CDATA[Moyennement important]]></title>
+    <sortorder><![CDATA[3]]></sortorder>
+    <language><![CDATA[fr]]></language>
+    <assessment_value><![CDATA[4]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[04]]></code>
+    <title><![CDATA[Neutraal]]></title>
+    <sortorder><![CDATA[3]]></sortorder>
+    <language><![CDATA[nl]]></language>
+    <assessment_value><![CDATA[4]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[05]]></code>
+    <title><![CDATA[Slightly important]]></title>
+    <sortorder><![CDATA[4]]></sortorder>
+    <language><![CDATA[en]]></language>
+    <assessment_value><![CDATA[5]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[05]]></code>
+    <title><![CDATA[Plutôt important]]></title>
+    <sortorder><![CDATA[4]]></sortorder>
+    <language><![CDATA[fr]]></language>
+    <assessment_value><![CDATA[5]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[05]]></code>
+    <title><![CDATA[Enigszins belangrijk]]></title>
+    <sortorder><![CDATA[4]]></sortorder>
+    <language><![CDATA[nl]]></language>
+    <assessment_value><![CDATA[5]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[06]]></code>
+    <title><![CDATA[Important]]></title>
+    <sortorder><![CDATA[5]]></sortorder>
+    <language><![CDATA[en]]></language>
+    <assessment_value><![CDATA[6]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[06]]></code>
+    <title><![CDATA[Important]]></title>
+    <sortorder><![CDATA[5]]></sortorder>
+    <language><![CDATA[fr]]></language>
+    <assessment_value><![CDATA[6]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[06]]></code>
+    <title><![CDATA[Belangrijk]]></title>
+    <sortorder><![CDATA[5]]></sortorder>
+    <language><![CDATA[nl]]></language>
+    <assessment_value><![CDATA[6]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[07]]></code>
+    <title><![CDATA[Very important]]></title>
+    <sortorder><![CDATA[6]]></sortorder>
+    <language><![CDATA[en]]></language>
+    <assessment_value><![CDATA[7]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[07]]></code>
+    <title><![CDATA[Très important]]></title>
+    <sortorder><![CDATA[6]]></sortorder>
+    <language><![CDATA[fr]]></language>
+    <assessment_value><![CDATA[7]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1001]]></lid>
+    <code><![CDATA[07]]></code>
+    <title><![CDATA[Erg belangrijk]]></title>
+    <sortorder><![CDATA[6]]></sortorder>
+    <language><![CDATA[nl]]></language>
+    <assessment_value><![CDATA[7]]></assessment_value>
+   </row>
+  </rows>
+ </labels>
+</document>

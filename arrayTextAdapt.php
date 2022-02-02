@@ -3,10 +3,10 @@
  * arrayTextAdapt : a LimeSurvey plugin to update array text question with some dropdpown
  *
  * @author Denis Chenu <denis@sondages.pro>
- * @copyright 2016-2020 Denis Chenu <http://www.sondages.pro>
- * @copyright 2016 Comité Régional du Tourisme de Bretagne <http://www.tourismebretagne.com>
+ * @copyright 2016-2022 Denis Chenu <http://www.sondages.pro>
+ * @copyright 2016-2022 Comité Régional du Tourisme de Bretagne <http://www.tourismebretagne.com>
  * @license AGPL v3
- * @version 3.0.0
+ * @version 3.1.0
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -112,9 +112,6 @@ class arrayTextAdapt  extends PluginBase {
                 'name' => get_class($this),
                 'settings' => $aSettings,
             ));
-            $assetUrl = Yii::app()->assetManager->publish(dirname(__FILE__) . '/assets/admin/');
-            App()->clientScript->registerCssFile($assetUrl.'/dropdownarray.css');
-
         }
     }
     public function newSurveySettings()
@@ -240,16 +237,14 @@ class arrayTextAdapt  extends PluginBase {
     {
         $aDropDownType=array();
         /* Test if saisieVille exist and is activated */
-        //~ if(Plugin::model()->find("name='cpVille' and active=1"))
-        //~ {
-            //~ $aDropDownType['ville']='Saisie de ville';
-        //~ }
-        //~ else
-        //~ {
-            //~ tracevar("cpVille plugin not present or not activated.");
-        //~ }
-        $aDropDownType['numeric']=gT("Numerical Input");
-        $aDropDownType['integer']=gT("Integer only");
+        if (Yii::getPathOfAlias('cpVille')) {
+            $aDropDownType['ville'] = 'Saisie de ville';
+        }
+
+        $aDropDownType['numeric']=gT("Numerical Input (js action)");
+        if(App()->getConfig("versionnumber") <= 3) {
+            $aDropDownType['integer']=gT("Integer only");
+        }
         if (Permission::model()->hasGlobalPermission('labelsets','read'))
         {
             $oLabels=LabelSet::model()->findAll(array("order"=>"label_name"));
@@ -294,25 +289,22 @@ class arrayTextAdapt  extends PluginBase {
      */
     private function setVilleAttributes($inputDom)
     {
-        if(YII_DEBUG)
-        {
-            Yii::app()->getClientScript()->registerScriptFile(rtrim(Yii::app()->getConfig('publicurl'),"/")."/plugins/arrayTextAdapt/assets/public/arraytextadapt.js");
-            Yii::app()->getClientScript()->registerScriptFile(rtrim(Yii::app()->getConfig('publicurl'),"/")."/plugins/arrayTextAdapt/assets/public/arraytextadapt.css");
-            Yii::app()->clientScript->registerCssFile(rtrim(Yii::app()->getConfig('publicurl'),"/") . '/plugins/cpVille/assets/cpville.css');
+        if(!Yii::getPathOfAlias('cpVille')) {
+            return;
         }
-        else
-        {
-            $assetUrl = Yii::app()->assetManager->publish(dirname(__FILE__) . '/assets/public/');
-            App()->clientScript->registerScriptFile($assetUrl.'/arraytextadapt.js');
-            App()->clientScript->registerScriptFile($assetUrl.'/arraytextadapt.css');
-            Yii::app()->clientScript->registerCssFile(rtrim(Yii::app()->getConfig('publicurl'),"/") . '/plugins/cpVille/assets/cpville.css'); // @todo : move it to asset too
+        $assetUrl = Yii::app()->assetManager->publish(dirname(__FILE__) . '/assets-legacy/');
+        if(array_key_exists('devbridge-autocomplete',Yii::app()->getClientScript()->packages)) {
+            Yii::app()->getClientScript()->registerPackage('devbridge-autocomplete');
+            $assetUrl = Yii::app()->assetManager->publish(dirname(__FILE__) . '/assets/');
+        }
+        App()->clientScript->registerPackage('cpVille');
+        App()->clientScript->registerScriptFile($assetUrl.'/arraytextadapt.js');
+        App()->clientScript->registerScriptFile($assetUrl.'/arraytextadapt.css');
 
-        }
         $aOptions=array();
-        $aOption['jsonurl']=Yii::app()->createUrl('plugins/direct', array('plugin' => "cpVille",'function' => 'auto'));
-        $sScript="arrayTextAdapt=".json_encode($aOption).";\n"."cpvilleinarray();\n";
+        $aOption['jsonurl'] = Yii::app()->createUrl('plugins/direct', array('plugin' => "cpVille",'function' => 'auto'));
+        $sScript = "arrayTextAdapt=".json_encode($aOption).";\n"."cpvilleinarray();\n";
         Yii::app()->getClientScript()->registerScript("saisievillearray",$sScript,CClientScript::POS_END);
-
         $class=$inputDom->getAttribute('class');
         $inputDom->setAttribute('class',$class." saisievillearray");
         return ;

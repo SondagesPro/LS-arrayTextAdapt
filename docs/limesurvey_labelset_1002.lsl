@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+ <LimeSurveyDocType>Label set</LimeSurveyDocType>
+ <DBVersion>356</DBVersion>
+ <labelsets>
+  <fields>
+   <fieldname>lid</fieldname>
+   <fieldname>label_name</fieldname>
+   <fieldname>languages</fieldname>
+  </fields>
+  <rows>
+   <row>
+    <lid><![CDATA[1002]]></lid>
+    <label_name><![CDATA[Accord : Oui/Non]]></label_name>
+    <languages><![CDATA[en fr]]></languages>
+   </row>
+  </rows>
+ </labelsets>
+ <labels>
+  <fields>
+   <fieldname>lid</fieldname>
+   <fieldname>code</fieldname>
+   <fieldname>title</fieldname>
+   <fieldname>sortorder</fieldname>
+   <fieldname>language</fieldname>
+   <fieldname>assessment_value</fieldname>
+  </fields>
+  <rows>
+   <row>
+    <lid><![CDATA[1002]]></lid>
+    <code><![CDATA[1]]></code>
+    <title><![CDATA[Yes]]></title>
+    <sortorder><![CDATA[0]]></sortorder>
+    <language><![CDATA[en]]></language>
+    <assessment_value><![CDATA[1]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1002]]></lid>
+    <code><![CDATA[1]]></code>
+    <title><![CDATA[Oui]]></title>
+    <sortorder><![CDATA[0]]></sortorder>
+    <language><![CDATA[fr]]></language>
+    <assessment_value><![CDATA[1]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1002]]></lid>
+    <code><![CDATA[2]]></code>
+    <title><![CDATA[No]]></title>
+    <sortorder><![CDATA[1]]></sortorder>
+    <language><![CDATA[en]]></language>
+    <assessment_value><![CDATA[2]]></assessment_value>
+   </row>
+   <row>
+    <lid><![CDATA[1002]]></lid>
+    <code><![CDATA[2]]></code>
+    <title><![CDATA[Non]]></title>
+    <sortorder><![CDATA[1]]></sortorder>
+    <language><![CDATA[fr]]></language>
+    <assessment_value><![CDATA[2]]></assessment_value>
+   </row>
+  </rows>
+ </labels>
+</document>
