@@ -26,7 +26,13 @@ class arrayTextAdapt extends PluginBase
     protected static $name = 'arrayTextAdapt';
     protected static $description = 'Use array text question type to show multiple dropdown to your users';
 
+    /** @inheritdoc, this plugin allow this public method */
+    public $allowedPublicMethods = array(
+        'actionSettings',
+        'actionSaveSettings',
+    );
 
+    /** @inheritdoc */
     public function init()
     {
         $this->subscribe('beforeActivate');
@@ -36,6 +42,7 @@ class arrayTextAdapt extends PluginBase
     }
 
     /**
+     * @inheritdoc
      * Show an alert if toolsSmartDomDocument is not here
      */
     public function beforeActivate()
@@ -73,34 +80,29 @@ class arrayTextAdapt extends PluginBase
             ));
             return;
         }
-        $aoQuestionArrayText = Question::model()->with('groups')->findAll(array(
-            'condition' => "t.sid=:sid and t.language=:language and type=:type and parent_qid=0",
+        $aoQuestionArrayText = Question::model()->with('group')->with('questionl10ns')->findAll(array(
+            'condition' => "t.sid=:sid and type=:type and parent_qid=0 and questionl10ns.language = :language",
             'order' => 'group_order ASC, question_order ASC',
-            'params' => array(':sid' => $oSurvey->sid,':language' => $oSurvey->language,':type' => ';')
+            'params' => array(':sid' => $oSurvey->sid, ':language' => $oSurvey->language, ':type' => ';')
         ));
-        $aDropDownType = $this->getDropdownType();
         foreach ($aoQuestionArrayText as $oQuestionArrayText) {
-            $aoSubQuestionY = Question::model()->findAll(array(
-                'condition' => "parent_qid=:parent_qid and language=:language and scale_id=1",
-                'order' => 'question_order ASC',
-                'params' => array(":parent_qid" => $oQuestionArrayText->qid,':language' => $oSurvey->language)
-            ));
+            $questiontext = viewHelper::flatEllipsizeText($oQuestionArrayText->questionl10ns[$oSurvey->language]->question, true, 80);
+            $settingUrl = App()->createUrl(
+                'admin/pluginhelper',
+                array(
+                    'sa' => 'sidebody',
+                    'plugin' => get_class($this),
+                    'method' => 'actionSettings',
+                    'surveyId' => $oSurvey->sid,
+                    'qid' => $oQuestionArrayText->qid,
+                )
+            );
+            $urltext = sprintf($this->gT("Settings for %s"), "<span class='label label-primary'>{$oQuestionArrayText->title}</span> {$questiontext}");
             $aSettings["info-{$oQuestionArrayText->qid}"] = array(
                 'type' => 'info',
-                'content' => "<p><span class='label label-primary'>{$oQuestionArrayText->title}</span>" . viewHelper::flatEllipsizeText($oQuestionArrayText->question, true, 80) . "</p>",
+                'content' => "<a href='{$settingUrl}' class='btn btn-link'>{$urltext}</a>",
                 'class' => 'questiontitle'
             );
-            foreach ($aoSubQuestionY as $oSubQuestionY) {
-                $aSettings["question-{$oSubQuestionY->qid}"] = array(
-                    'type' => 'select',
-                    'label' => "<span class='label label-info'>{$oSubQuestionY->title}</span>" . viewHelper::flatEllipsizeText($oSubQuestionY->question, true, 80),
-                    'options' => $aDropDownType,
-                    'htmlOptions' => array(
-                        'empty' => gT('None'),
-                    ),
-                    'current' => $this->getActualValue($oSubQuestionY->qid),
-                );
-            }
         }
         if (!empty($aSettings)) {
             $event->set("surveysettings.{$this->id}", array(
@@ -109,46 +111,153 @@ class arrayTextAdapt extends PluginBase
             ));
         }
     }
-    public function newSurveySettings()
+
+    /**
+     * Main function to replace question Setting
+     * @param int $surveyId Survey id
+     * @param int $qid question id
+     * @return string
+     */
+    public function actionSettings($surveyId)
     {
-        if (!$this->getEvent()) {
+        $oSurvey = Survey::model()->findByPk($surveyId);
+        if (!$oSurvey) {
+            throw new CHttpException(404, gT("This survey does not seem to exist."));
+        }
+        if (!Permission::model()->hasSurveyPermission($surveyId, 'surveycontent', 'read')) {
             throw new CHttpException(403);
         }
-        if (!Yii::getPathOfAlias('toolsDomDocument')) {
-            return;
+        $qid = App()->getRequest()->getParam('qid', 0);
+        $oQuestion = Question::model()->with('questionl10ns')->find(
+            "sid = :sid and t.qid = :qid and questionl10ns.language = :language",
+            [":sid" => $surveyId, ":qid" => $qid, ":language" => $oSurvey->language]
+        );
+        if (!$oQuestion) {
+            throw new CHttpException(404, gT("This question does not seem to exist."));
         }
-        $event = $this->event;
-        $aSettings = $event->get('settings');
-        if (!empty($aSettings)) {
-            foreach ($aSettings as $name => $value) {
-                /* Save as Question attribute settings : Bad hack */
-                $aSetting = explode("-", $name);
-                if ($aSetting[0] == "question" && isset($aSetting[1])) {
-                    $iQid = intval($aSetting[1]);
-                    if ($value == $this->getDefaultValue($aSetting[1])) {
-                        QuestionAttribute::model()->deleteAll("qid=:qid and attribute=:attribute", array(':qid' => $iQid,":attribute" => 'arrayTextAdaptation'));
-                    } else {
-                        $oAttribute = QuestionAttribute::model()->find("qid=:qid and attribute=:attribute", array(':qid' => $iQid,":attribute" => 'arrayTextAdaptation'));
-                        if (!$oAttribute) {
-                            $oAttribute = new QuestionAttribute();
-                            $oAttribute->qid = $iQid;
-                            $oAttribute->attribute = 'arrayTextAdaptation';
-                        }
-                        $oAttribute->value = $value;
-                        $oAttribute->save();
-                    }
-                } else {
-                    $default = $event->get($name, null, null, isset($this->settings[$name]['default']) ? $this->settings[$name]['default'] : null);
-                    $this->set($name, $value, 'Survey', $event->get('survey'), $default);
+        $aDropDownType = $this->getDropdownType();
+
+        $aoSubQuestionY = Question::model()->with('questionl10ns')->findAll(array(
+            'condition' => "parent_qid=:parent_qid and language=:language and scale_id=1",
+            'order' => 'question_order ASC',
+            'params' => array(":parent_qid" => $qid,':language' => $oSurvey->language)
+        ));
+        $aSubqSetting = array();
+        foreach ($aoSubQuestionY as $oSubQuestionY) {
+            $questiontext = viewHelper::flatEllipsizeText($oSubQuestionY->questionl10ns[$oSurvey->language]->question, true, 80);
+            $aSubqSetting["question-{$oSubQuestionY->qid}"] = array(
+                'type' => 'select',
+                'label' => "<span class='label label-info'>{$oSubQuestionY->title}</span> {$questiontext}",
+                'options' => $aDropDownType,
+                'htmlOptions' => array(
+                    'empty' => gT('None'),
+                ),
+                'current' => $this->getActualValue($oSubQuestionY->qid),
+            );
+        }
+        $aSettings[$this->gT('Choice for question')] = $aSubqSetting;
+        $aData['pluginClass'] = get_class($this);
+        $aData['surveyId'] = $surveyId;
+        $aData['gid'] = $oQuestion->gid;
+        $aData['qid'] = $oQuestion->qid;
+        $aData['title'] = $this->gT("Array text adapt settings");
+        $aData['warningString'] = null;
+        $aData['aSettings'] = $aSettings;
+        $aData['form'] = array(
+            'action' => App()->createUrl('admin/pluginhelper/sa/sidebody', array('plugin' => get_class($this),'method' => 'actionSaveSettings','surveyId' => $surveyId, 'qid' => $qid)),
+            'close' => App()->createUrl('questionAdministration/view', array('surveyid' => $surveyId, 'qid' => $qid))
+        );
+        $content = $this->renderPartial('settings', $aData, true);
+        return $content;
+    }
+
+    /**
+     * Main function to replace question Setting
+     * @param int $surveyId Survey id
+     * @param int $qid question id
+     * @return string
+     */
+    public function actionSaveSettings($surveyId)
+    {
+        $oSurvey = Survey::model()->findByPk($surveyId);
+        if (!$oSurvey) {
+            throw new CHttpException(404, gT("This survey does not seem to exist."));
+        }
+        if (!Permission::model()->hasSurveyPermission($surveyId, 'surveycontent', 'update')) {
+            throw new CHttpException(403);
+        }
+        $qid = App()->getRequest()->getParam('qid', 0);
+        $oQuestion = Question::model()->with('questionl10ns')->find(
+            "sid = :sid and t.qid = :qid and questionl10ns.language = :language",
+            [":sid" => $surveyId, ":qid" => $qid, ":language" => $oSurvey->language]
+        );
+        if (!$oQuestion) {
+            throw new CHttpException(404, gT("This question does not seem to exist."));
+        }
+        if ($oQuestion->type != ";") {
+            throw new CHttpException(400, gT("This question are not valid."));
+        }
+        $arrayTextAdaptSetting = App()->getRequest()->getPost('arrayTextAdapt');
+        $aoSubQuestionY = Question::model()->with('questionl10ns')->findAll(array(
+            'condition' => "parent_qid=:parent_qid and language=:language and scale_id=1",
+            'order' => 'question_order ASC',
+            'params' => array(":parent_qid" => $qid,':language' => $oSurvey->language)
+        ));
+        $haveSettings = false;
+        foreach ($aoSubQuestionY as $oSubQuestionY) {
+            if (!empty($arrayTextAdaptSetting['question-' . $oSubQuestionY->qid])) {
+                $haveSettings = true;
+                $oAttribute = QuestionAttribute::model()->find(
+                    "qid=:qid and attribute=:attribute",
+                    [':qid' => $oSubQuestionY->qid,":attribute" => 'arrayTextAdaptation']
+                );
+                if (!$oAttribute) {
+                    $oAttribute = new QuestionAttribute();
+                    $oAttribute->qid = $oSubQuestionY->qid;
+                    $oAttribute->attribute = 'arrayTextAdaptation';
                 }
+                $oAttribute->value = $arrayTextAdaptSetting['question-' . $oSubQuestionY->qid];
+                $oAttribute->save();
+            } else {
+                QuestionAttribute::model()->deleteAll(
+                    "qid=:qid and attribute=:attribute",
+                    array(':qid' => $oSubQuestionY->qid, ":attribute" => 'arrayTextAdaptation')
+                );
             }
         }
+        /* Tag the primary question with a status */
+        $oAttribute = QuestionAttribute::model()->find(
+            "qid=:qid and attribute=:attribute",
+            [':qid' => $oSubQuestionY->qid,":attribute" => 'haveArrayTextAdapt']
+        );
+        if (!$oAttribute) {
+            $oAttribute = new QuestionAttribute();
+            $oAttribute->qid = $oSubQuestionY->qid;
+            $oAttribute->attribute = 'haveArrayTextAdapt';
+        }
+        if ($haveSettings) {
+            $oAttribute->value = '1';
+        } else {
+            $oAttribute->value = '-1';
+        }
+        $oAttribute->save();
+        $redirectUrl = Yii::app()->createUrl('admin/pluginhelper/sa/sidebody', array('plugin' => get_class($this),'method' => 'actionSettings','surveyId' => $surveyId, 'qid' => $qid));
+        Yii::app()->getRequest()->redirect($redirectUrl, true, 303);
+    }
+    /**
+    * Add the readonly attribute
+    */
+    public function addScriptAttribute()
+    {
+    }
+
+    /* Just do nothing */
+    public function newSurveySettings()
+    {
+        return;
     }
     public function beforeQuestionRender()
     {
-        if (!$this->getEvent()) {
-            throw new CHttpException(403);
-        }
         if (!Yii::getPathOfAlias('toolsDomDocument')) {
             return;
         }
@@ -156,20 +265,21 @@ class arrayTextAdapt extends PluginBase
         $sType = $oEvent->get('type');
         if ($sType == ";") {
             $aoSubQuestionX = Question::model()->findAll(array(
-                'condition' => "parent_qid=:parent_qid and language=:language and scale_id=:scale_id",
-                'params' => array(":parent_qid" => $oEvent->get('qid'),":language" => App()->language,":scale_id" => 1),
+                'condition' => "parent_qid=:parent_qid and scale_id=:scale_id",
+                'params' => array(":parent_qid" => $oEvent->get('qid'), ":scale_id" => 1),
                 'index' => 'qid',
             ));
             $oCriteria = new CDbCriteria();
-            $oCriteria->condition = "attribute='arrayTextAdaptation'";
+            $oCriteria->condition = "attribute = 'arrayTextAdaptation'";
             $oCriteria->addInCondition("qid", CHtml::listData($aoSubQuestionX, 'qid', 'qid'));
-            $oExistingAttribute = QuestionAttribute::model()->findAll($oCriteria);
+            $oExistingAttribute = QuestionAttribute::model()->resetScope(true)->findAll($oCriteria);
             if (count($oExistingAttribute)) {
                 $aSubQuestionsY = Question::model()->findAll(array(
-                    'condition' => "parent_qid=:parent_qid and language=:language and scale_id=:scale_id",
-                    'params' => array(":parent_qid" => $oEvent->get('qid'),":language" => App()->language,":scale_id" => 0),
+                    'condition' => "parent_qid=:parent_qid and scale_id=:scale_id",
+                    'params' => array(":parent_qid" => $oEvent->get('qid'),":scale_id" => 0),
                     'select' => 'title',
                 ));
+                $oQuestion = Question::model()->findByPk($oEvent->get('qid'));
                 $dom = new \toolsDomDocument\SmartDOMDocument();
                 $dom->loadHTML("<!DOCTYPE html>" . $oEvent->get('answers'));
                 foreach ($oExistingAttribute as $oAttribute) {
@@ -177,12 +287,8 @@ class arrayTextAdapt extends PluginBase
                     foreach ($aSubQuestionsY as $aSubQuestionY) {
                         $sAnswerId = "answer{$oEvent->get('surveyId')}X{$oEvent->get('gid')}X{$oEvent->get('qid')}{$aSubQuestionY->title}_{$oQuestionX->title}";
                         $inputDom = $dom->getElementById($sAnswerId);
-
                         if (!is_null($inputDom)) {
                             switch ($oAttribute->value) {
-                                case 'ville':
-                                    $this->setVilleAttributes($inputDom);
-                                    break;
                                 case 'numeric':
                                     $this->setNumericAttributes($inputDom);
                                     break;
@@ -191,7 +297,7 @@ class arrayTextAdapt extends PluginBase
                                     break;
                                 default:
                                     if (substr($oAttribute->value, 0, 5) === "label" && ctype_digit(substr($oAttribute->value, 5))) {
-                                        if ($sLabelHtml = $this->getLabelHtml(substr($oAttribute->value, 5), $inputDom)) {
+                                        if ($sLabelHtml = $this->getLabelHtml(substr($oAttribute->value, 5), $inputDom, $oQuestion)) {
                                             $newDoc = $dom->createDocumentFragment();
                                             $newDoc->appendXML($sLabelHtml);
                                             $inputDom->parentNode->replaceChild($newDoc, $inputDom);
@@ -299,41 +405,71 @@ class arrayTextAdapt extends PluginBase
         $onkeyup = $inputDom->setAttribute('data-number', 1);
         $onkeyup = $inputDom->setAttribute('data-integer', 1);
     }
+
     /**
-     * return a saisieVille input
+     * return a dropdown input by label set
+     * @var integer $iLid label id
+     * @var \DOMElement $inputDom the input
+     * @var \Question $oQuestion
+     * @retuirn null|string the html of the dropdown
      */
-    private function getLabelHtml($iLid, $inputDom)
+    private function getLabelHtml($iLid, $inputDom, $oQuestion)
     {
+        /* static */
+        static $alabelsHtml = [];
         /* Get this label */
-        if (LabelSet::model()->find("lid=:lid", array(":lid" => $iLid))) {
-            $oLabelsSets = Label::model()->findAll(array("condition" => "lid=:lid and language=:language","order" => "sortorder","params" => array(":lid" => $iLid,":language" => App()->language)));
-            if (!$oLabelsSets) {
-                $oLabelsSets = Label::model()->findAll(array("condition" => "lid=:lid and language=:language","order" => "sortorder","params" => array(":lid" => $iLid,":language" => Survey::model()->findByPk($this->event->get('surveyId'))->language)));
-            }
-            if (!$oLabelsSets) {
-                $oLabelsSets = Label::model()->findAll(array("condition" => "lid=:lid and language=:language","order" => "sortorder","params" => array(":lid" => $iLid,":language" => App()->getConfig("defaultlanguage"))));
-            }
-            if (!$oLabelsSets) {
-                $oLabelsSets = Label::model()->findAll(array("condition" => "lid=:lid and language=:language","order" => "sortorder","params" => array(":lid" => $iLid,":language" => "en")));
-            }
-            if ($oLabelsSets && count($oLabelsSets)) {
-                $data = CHtml::listData($oLabelsSets, 'code', 'title');
-                $htmlOptions = array ( );
-                if ($inputDom->getAttribute("value") == "") {
-                    $htmlOptions['empty'] = gT('Please choose...');
-                } elseif ($this->event->get('man_class') != "mandatory" && SHOW_NO_ANSWER) {
-                    $data[''] = gT('No answer');
+        if (!isset($alabelsHtml[$iLid])) {
+            if ($LabelSet = LabelSet::model()->findByPk($iLid)) {
+                /* Check the language */
+                $labelSetLanguages = explode(" ", $LabelSet->languages);
+                $language = App()->getConfig("defaultlanguage");
+                if (in_array(App()->language, $labelSetLanguages)) {
+                    $language = App()->language;
+                } elseif (in_array(Survey::mode()->findByPk($oQuestion->qid)->language, $labelSetLanguages)) {
+                    $language = Survey::mode()->findByPk($oQuestion->qid)->language;
+                } elseif (in_array(App()->getConfig("defaultlanguage"), $labelSetLanguages)) {
+                    $language = App()->getConfig("defaultlanguage");
+                } elseif (in_array('en', $labelSetLanguages)) {
+                    $language = 'en';
+                } else {
+                    // Add a alert on display if have permission ?
+                    $alabelsHtml[$iLid] = [];
+                    return null;
                 }
-                $htmlOptions['id'] = 'answer' . $inputDom->getAttribute("name");
-                $htmlOptions['class'] = 'form-control';
-                $newHtml = CHtml::dropDownList(
-                    $inputDom->getAttribute("name"),
-                    $inputDom->getAttribute("value"),
-                    $data,
-                    $htmlOptions
-                );
-                return CHtml::tag("div", array('class' => 'select-item'), $newHtml);
+                $oLabels = Label::model()->with('labell10ns')->findAll([
+                    "condition" => "t.lid = :lid and labell10ns.language=:language",
+                    "order" => "sortorder",
+                    "params" => array(":lid" => $iLid,":language" => App()->language)
+                ]);
+                if ($oLabels && count($oLabels)) {
+                    $alabelsHtml[$iLid] = Chtml::listData($oLabels, 'code', function ($oLabel) use ($language) {
+                        return $oLabel->labell10ns[$language]['title'];
+                    });
+                } else {
+                    $alabelsHtml[$iLid] = [];
+                }
+            } else {
+                $alabelsHtml[$iLid] = [];
             }
         }
+        if (empty($alabelsHtml[$iLid])) {
+            return null;
+        }
+        $data = $alabelsHtml[$iLid];
+        $htmlOptions = array ();
+        if ($inputDom->getAttribute("value") == "") {
+            $htmlOptions['empty'] = gT('Please choose...');
+        } elseif ($oQuestion->mandatory == "N" && Survey::model()->findByPk($oQuestion->sid)->getIsShowNoAnswer()) {
+            $data[''] = gT('No answer');
+        }
+        $htmlOptions['id'] = 'answer' . $inputDom->getAttribute("name");
+        $htmlOptions['class'] = 'form-control';
+        $newHtml = CHtml::dropDownList(
+            $inputDom->getAttribute("name"),
+            $inputDom->getAttribute("value"),
+            $data,
+            $htmlOptions
+        );
+        return CHtml::tag("div", array('class' => 'select-item'), $newHtml);
     }
 }
