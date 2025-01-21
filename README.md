@@ -3,13 +3,15 @@ arrayTextAdapt
 
 A plugin for LimeSurvey to use dropdown in replace of input in array text.
 
+This plugin was tested only with label sets on 6.X.
+
 ## Installation
 
 You need [toolsDomDocument](https://gitlab.com/SondagesPro/coreAndTools/toolsDomDocument).
 
 ### Via GIT
 
-- Go to your LimeSurvey Directory (version up to 3.0 only)
+- Go to your LimeSurvey Directory (version up to 5.0 only)
 - Clone plugins/arrayTextAdapt directory `git clone https://gitlab.com/SondagesPro/QuestionSettingsType/arrayTextAdapt.git`
 
 ### Via ZIP dowload
