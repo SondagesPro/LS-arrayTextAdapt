@@ -4,10 +4,10 @@
  * arrayTextAdapt : a LimeSurvey plugin to update array text question with some dropdpown
  *
  * @author Denis Chenu <denis@sondages.pro>
- * @copyright 2016-2022 Denis Chenu <http://www.sondages.pro>
+ * @copyright 2016-2025 Denis Chenu <http://www.sondages.pro>
  * @copyright 2016-2022 Comité Régional du Tourisme de Bretagne <http://www.tourismebretagne.com>
  * @license AGPL v3
- * @version 4.0.0-alpha0
+ * @version 4.0.1
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -425,8 +425,8 @@ class arrayTextAdapt extends PluginBase
                 $language = App()->getConfig("defaultlanguage");
                 if (in_array(App()->language, $labelSetLanguages)) {
                     $language = App()->language;
-                } elseif (in_array(Survey::mode()->findByPk($oQuestion->qid)->language, $labelSetLanguages)) {
-                    $language = Survey::mode()->findByPk($oQuestion->qid)->language;
+                } elseif (in_array(Survey::mode()->findByPk($oQuestion->sid)->language, $labelSetLanguages)) {
+                    $language = Survey::mode()->findByPk($oQuestion->sid)->language;
                 } elseif (in_array(App()->getConfig("defaultlanguage"), $labelSetLanguages)) {
                     $language = App()->getConfig("defaultlanguage");
                 } elseif (in_array('en', $labelSetLanguages)) {
