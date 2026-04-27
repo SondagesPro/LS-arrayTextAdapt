@@ -4,11 +4,11 @@
         <name>arrayTextAdapt</name>
         <type>plugin</type>
         <creationDate>2016-06-06</creationDate>
-        <lastUpdate>2025-11-12</lastUpdate>
+        <lastUpdate>2026-04-27</lastUpdate>
         <author>Denis Chenu</author>
         <authorUrl>https://extensions.sondages.pro/questions-updating-and-managing/arraytextadapt/</authorUrl>
         <supportUrl>https://www.sondages.pro/contact</supportUrl>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
         <license>GNU Affero General Public License v3.0</license>
         <description><![CDATA[A LimeSurvey plugin to update array text question with some dropdpown.]]></description>
     </metadata>

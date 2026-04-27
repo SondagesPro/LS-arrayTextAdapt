@@ -4,10 +4,10 @@
  * arrayTextAdapt : a LimeSurvey plugin to update array text question with some dropdpown
  *
  * @author Denis Chenu <denis@sondages.pro>
- * @copyright 2016-2025 Denis Chenu <http://www.sondages.pro>
+ * @copyright 2016-2026 Denis Chenu <http://www.sondages.pro>
  * @copyright 2016-2022 Comité Régional du Tourisme de Bretagne <http://www.tourismebretagne.com>
  * @license AGPL v3
- * @version 4.0.1
+ * @version 4.0.2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -425,8 +425,8 @@ class arrayTextAdapt extends PluginBase
                 $language = App()->getConfig("defaultlanguage");
                 if (in_array(App()->language, $labelSetLanguages)) {
                     $language = App()->language;
-                } elseif (in_array(Survey::mode()->findByPk($oQuestion->sid)->language, $labelSetLanguages)) {
-                    $language = Survey::mode()->findByPk($oQuestion->sid)->language;
+                } elseif (in_array(Survey::model()->findByPk($oQuestion->sid)->language, $labelSetLanguages)) {
+                    $language = Survey::model()->findByPk($oQuestion->sid)->language;
                 } elseif (in_array(App()->getConfig("defaultlanguage"), $labelSetLanguages)) {
                     $language = App()->getConfig("defaultlanguage");
                 } elseif (in_array('en', $labelSetLanguages)) {
@@ -436,10 +436,11 @@ class arrayTextAdapt extends PluginBase
                     $alabelsHtml[$iLid] = [];
                     return null;
                 }
+                tracevar($language);
                 $oLabels = Label::model()->with('labell10ns')->findAll([
                     "condition" => "t.lid = :lid and labell10ns.language=:language",
                     "order" => "sortorder",
-                    "params" => array(":lid" => $iLid,":language" => App()->language)
+                    "params" => array(":lid" => $iLid,":language" => $language)
                 ]);
                 if ($oLabels && count($oLabels)) {
                     $alabelsHtml[$iLid] = Chtml::listData($oLabels, 'code', function ($oLabel) use ($language) {
