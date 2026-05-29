@@ -7,7 +7,7 @@
  * @copyright 2016-2026 Denis Chenu <http://www.sondages.pro>
  * @copyright 2016-2022 Comité Régional du Tourisme de Bretagne <http://www.tourismebretagne.com>
  * @license AGPL v3
- * @version 4.0.2
+ * @version 5.0.0
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -267,6 +267,7 @@ class arrayTextAdapt extends PluginBase
             $aoSubQuestionX = Question::model()->findAll(array(
                 'condition' => "parent_qid=:parent_qid and scale_id=:scale_id",
                 'params' => array(":parent_qid" => $oEvent->get('qid'), ":scale_id" => 1),
+                'select' => 'qid, title',
                 'index' => 'qid',
             ));
             $oCriteria = new CDbCriteria();
@@ -277,7 +278,7 @@ class arrayTextAdapt extends PluginBase
                 $aSubQuestionsY = Question::model()->findAll(array(
                     'condition' => "parent_qid=:parent_qid and scale_id=:scale_id",
                     'params' => array(":parent_qid" => $oEvent->get('qid'),":scale_id" => 0),
-                    'select' => 'title',
+                    'select' => 'qid, title',
                 ));
                 $oQuestion = Question::model()->findByPk($oEvent->get('qid'));
                 $dom = new \toolsDomDocument\SmartDOMDocument();
@@ -285,7 +286,10 @@ class arrayTextAdapt extends PluginBase
                 foreach ($oExistingAttribute as $oAttribute) {
                     $oQuestionX = $aoSubQuestionX[$oAttribute->qid];
                     foreach ($aSubQuestionsY as $aSubQuestionY) {
-                        $sAnswerId = "answer{$oEvent->get('surveyId')}X{$oEvent->get('gid')}X{$oEvent->get('qid')}{$aSubQuestionY->title}_{$oQuestionX->title}";
+                        $sAnswerId = "answerQ{$oEvent->get('qid')}_S{$aSubQuestionY->qid}_S{$oQuestionX->qid}";
+                        if (intval(App()->getConfig('versionnumber')) < 7) {
+                            $sAnswerId = "answer{$oEvent->get('surveyId')}X{$oEvent->get('gid')}X{$oEvent->get('qid')}{$aSubQuestionY->title}_{$oQuestionX->title}";
+                        }
                         $inputDom = $dom->getElementById($sAnswerId);
                         if (!is_null($inputDom)) {
                             switch ($oAttribute->value) {
@@ -319,15 +323,6 @@ class arrayTextAdapt extends PluginBase
     private function getDropdownType()
     {
         $aDropDownType = array();
-        /* Test if saisieVille exist and is activated */
-        if (Yii::getPathOfAlias('cpVille')) {
-            $aDropDownType['ville'] = 'Saisie de ville';
-        }
-
-        $aDropDownType['numeric'] = gT("Numerical Input (js action)");
-        if (App()->getConfig("versionnumber") <= 3) {
-            $aDropDownType['integer'] = gT("Integer only");
-        }
         if (Permission::model()->hasGlobalPermission('labelsets', 'read')) {
             $oLabels = LabelSet::model()->findAll(array("order" => "label_name"));
             if (count($oLabels)) {
@@ -360,7 +355,8 @@ class arrayTextAdapt extends PluginBase
     }
 
     /**
-     * return a saisieVille input
+     * Return a saisieVille input
+     * @deprecated 5.0.0, remove unfunctional system
      */
     private function setVilleAttributes($inputDom)
     {
@@ -385,7 +381,8 @@ class arrayTextAdapt extends PluginBase
         return ;
     }
     /**
-     * return a numeric input
+     * Return a numeric input
+     * @deprecated 5.0.0, remove unfunctional system
      */
     private function setNumericAttributes($inputDom)
     {
@@ -396,7 +393,8 @@ class arrayTextAdapt extends PluginBase
     }
 
     /**
-     * return a integer input
+     * Return a integer input
+     * @deprecated 5.0.0, remove unfunctional system
      */
     private function setIntegerAttributes($inputDom)
     {
@@ -436,7 +434,6 @@ class arrayTextAdapt extends PluginBase
                     $alabelsHtml[$iLid] = [];
                     return null;
                 }
-                tracevar($language);
                 $oLabels = Label::model()->with('labell10ns')->findAll([
                     "condition" => "t.lid = :lid and labell10ns.language=:language",
                     "order" => "sortorder",
